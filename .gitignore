@@ -22,9 +22,9 @@ GPATH
 
 # Example project files
 
-**/sdkconfig
-**/sdkconfig.old
-**/build
+#**/sdkconfig
+#**/sdkconfig.old
+#**/build
 **/managed_components
 **/dependencies.lock
 **/dist
