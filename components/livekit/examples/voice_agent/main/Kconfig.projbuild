@@ -21,6 +21,11 @@ menu "LiveKit Example"
             bool "Pre-generated token"
             help
                 Use a pre-generated token and server URL for room connection.
+
+        config LK_EXAMPLE_USE_DYNAMIC_TOKEN
+            bool "Dynamic token from API"
+            help
+                Fetch token dynamically from a REST API endpoint.
     endchoice
 
     config LK_EXAMPLE_SERVER_URL
@@ -50,6 +55,48 @@ menu "LiveKit Example"
         string "Participant name (optional)"
         help
             Specific participant name sandbox tokens will be generated with.
+
+    config LK_EXAMPLE_API_URL
+        depends on LK_EXAMPLE_USE_DYNAMIC_TOKEN
+        string "API URL for token generation"
+        default "https://cloud-api.livekit.io/api/sandbox/connection-details"
+        help
+            The API endpoint URL to fetch connection details and token.
+
+    config LK_EXAMPLE_SANDBOX_ID_HEADER
+        depends on LK_EXAMPLE_USE_DYNAMIC_TOKEN
+        string "Sandbox ID for API header"
+        default "live-agent-demo-26u7lg"
+        help
+            The X-Sandbox-ID header value for API authentication.
+
+    config LK_EXAMPLE_DYNAMIC_ROOM_NAME
+        depends on LK_EXAMPLE_USE_DYNAMIC_TOKEN
+        string "Room name for dynamic token"
+        default "demo-room"
+        help
+            Room name to use when requesting dynamic token.
+
+    config LK_EXAMPLE_DYNAMIC_PARTICIPANT_NAME
+        depends on LK_EXAMPLE_USE_DYNAMIC_TOKEN
+        string "Participant name for dynamic token"
+        default "demo-user"
+        help
+            Participant name to use when requesting dynamic token.
+
+    config LK_EXAMPLE_AGENT_NAME
+        depends on LK_EXAMPLE_USE_DYNAMIC_TOKEN
+        string "Agent name for dynamic token"
+        default "hospital_assistant"
+        help
+            Agent name to include in room configuration.
+
+    config LK_EXAMPLE_AGENT_METADATA
+        depends on LK_EXAMPLE_USE_DYNAMIC_TOKEN
+        string "Agent metadata for dynamic token"
+        default "role=hospital_assistant;source=triage"
+        help
+            Agent metadata to include in room configuration.
 
     config LK_EXAMPLE_SPEAKER_VOLUME
         int "Default speaker volume (0-100%)"
