@@ -152,6 +152,8 @@ void join_room()
     connect_res = livekit_room_connect(room_handle, res.server_url, res.token);
     livekit_sandbox_res_free(&res);
 #else
+    printf("use Pre-generated token\n");
+
     // Option B: Pre-generated token.
     connect_res = livekit_room_connect(
         room_handle,
