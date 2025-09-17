@@ -421,29 +421,53 @@ void join_room()
     ESP_LOGI(TAG, "Preparing to fetch dynamic token from API...");
     
     // Wait for time synchronization (required for SSL certificate validation)
-    ESP_LOGI(TAG, "Waiting for time synchronization...");
+    ESP_LOGI(TAG, "Checking time synchronization status...");
     time_t now = 0;
     struct tm timeinfo = { 0 };
     int retry_count = 0;
     const int max_retry = 10;
     
-    while (timeinfo.tm_year < (2023 - 1900) && retry_count < max_retry) {
-        ESP_LOGI(TAG, "Waiting for system time to be set... (%d/%d)", retry_count + 1, max_retry);
-        vTaskDelay(pdMS_TO_TICKS(2000));
-        time(&now);
-        localtime_r(&now, &timeinfo);
-        retry_count++;
+    // Get initial time first
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    ESP_LOGI(TAG, "Initial time check: %04d-%02d-%02d %02d:%02d:%02d (timestamp: %ld)", 
+             timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday,
+             timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, (long)now);
+    
+    // Check if time appears to be from Unix epoch (indicates not synchronized)
+    // Unix epoch time starts at 1970-01-01, so anything before 2020 is likely unsynchronized
+    const time_t min_valid_timestamp = 1577836800; // 2020-01-01 00:00:00 UTC
+    
+    if (now >= min_valid_timestamp) {
+        ESP_LOGI(TAG, "Time appears to be synchronized, no waiting needed");
+    } else {
+        ESP_LOGI(TAG, "Time appears to be from Unix epoch, waiting for SNTP synchronization...");
+        
+        while (now < min_valid_timestamp && retry_count < max_retry) {
+            ESP_LOGI(TAG, "Waiting for system time to be set... (%d/%d)", retry_count + 1, max_retry);
+            ESP_LOGI(TAG, "Current time: %04d-%02d-%02d %02d:%02d:%02d (timestamp: %ld)", 
+                     timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday,
+                     timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, (long)now);
+            
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            time(&now);
+            localtime_r(&now, &timeinfo);
+            retry_count++;
+        }
     }
     
-    if (timeinfo.tm_year < (2023 - 1900)) {
-        ESP_LOGW(TAG, "Time synchronization timeout, continuing anyway...");
-        ESP_LOGW(TAG, "Current time: %04d-%02d-%02d %02d:%02d:%02d", 
+    // Final status check
+    if (now < min_valid_timestamp) {
+        ESP_LOGW(TAG, "Time synchronization timeout after %d attempts, continuing anyway...", max_retry);
+        ESP_LOGW(TAG, "Final time: %04d-%02d-%02d %02d:%02d:%02d (timestamp: %ld)", 
                  timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday,
-                 timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+                 timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, (long)now);
+        ESP_LOGW(TAG, "SSL certificate validation may fail due to incorrect time!");
+        ESP_LOGW(TAG, "Please check network connection and NTP server availability");
     } else {
-        ESP_LOGI(TAG, "Time synchronized successfully: %04d-%02d-%02d %02d:%02d:%02d", 
+        ESP_LOGI(TAG, "Time synchronized successfully: %04d-%02d-%02d %02d:%02d:%02d (timestamp: %ld)", 
                  timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday,
-                 timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+                 timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, (long)now);
     }
     
     ESP_LOGI(TAG, "Starting dynamic token fetch...");
