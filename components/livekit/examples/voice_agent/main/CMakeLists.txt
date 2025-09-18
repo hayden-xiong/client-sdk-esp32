@@ -1,2 +1,2 @@
-idf_component_register(SRCS "main.c" "example.c" "board.c" "media.c"
+idf_component_register(SRCS "main.c" "example.c" "board.c" "media.c" "audio_monitor.c" "audio_stats.c" "audio_activity_monitor.c" "audio_diagnostics.c" "livekit_audio_monitor.c"
                        INCLUDE_DIRS ".")

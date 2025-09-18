@@ -33,6 +33,15 @@ esp_capture_handle_t media_get_capturer(void);
 ///
 av_render_handle_t media_get_renderer(void);
 
+/// Print current audio statistics to console
+void media_print_audio_stats(void);
+
+/// Manually trigger audio activity logging
+void media_log_audio_activity(void);
+
+/// Run comprehensive audio diagnostics
+void media_run_audio_diagnostics(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -4,6 +4,7 @@
 #include "example.h"
 #include "livekit_example_utils.h"
 #include "media.h"
+#include "audio_stats.h"
 
 #include "livekit.h"
 
@@ -19,6 +20,9 @@ void app_main(void)
     esp_netif_sntp_init(&sntp_config);
 
     if (lk_example_network_connect()) {
+        // Start audio statistics reporting
+        audio_stats_start_reporting();
+        
         join_room(); // See example.c
     }
 }
