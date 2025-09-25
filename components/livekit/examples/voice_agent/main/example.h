@@ -10,4 +10,4 @@ void leave_room();
 
 #ifdef __cplusplus
 }
-#endif
+#endif     
