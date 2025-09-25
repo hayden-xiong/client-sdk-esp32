@@ -621,9 +621,6 @@ CONFIG_LK_EXAMPLE_WIFI_SSID="PLAUD-TEST-2.4"
 CONFIG_LK_EXAMPLE_WIFI_PASSWORD="Plaud@2024#"
 # end of LiveKit Example Utilities
 
-
-
-
 #
 # ESP Speech Recognition
 #
